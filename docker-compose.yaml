@@ -1,0 +1,57 @@
+version: '3.9'
+services:
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: dockerfile
+    container_name: backend
+    image: backend
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+    networks:
+      - logs
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    depends_on:
+      - backend
+    volumes:
+      - ./prometheus:/etc/prometheus/
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - logs
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    user: root
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/grafana_dashboard.json:/etc/grafana/provisioning/dashboards/grafana_dashboard.json
+      - ./grafana/grafana_dashboard.yml:/etc/grafana/provisioning/dashboards/grafana_dashboard.yml
+      - ./grafana/grafana_datasource.yml:/etc/grafana/provisioning/datasources/grafana_datasource.yml
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - logs
+
+networks:
+  logs:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+

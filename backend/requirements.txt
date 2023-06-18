@@ -1,0 +1,14 @@
+click
+Flask
+itsdangerous==2.1.2
+gunicorn
+Jinja2
+MarkupSafe
+prometheus-flask-exporter
+virtualenv
+Werkzeug
+zipp
+platformdirs
+filelock
+dataclasses
+py-healthcheck
